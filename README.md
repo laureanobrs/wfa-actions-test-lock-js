@@ -1,1 +1,2 @@
-# wfa-actions-test-lock-js
+# actions
+Repo for shared GitHub actions

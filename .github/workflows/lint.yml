@@ -1,0 +1,24 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint:
+    name: Lint changed files
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Check out revision
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Lint
+      uses: ./lint
+      with:
+        license-type: apache
+        copyright-holder: The Cross-Media Measurement Authors
