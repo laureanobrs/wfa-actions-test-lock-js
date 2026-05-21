@@ -28,6 +28,7 @@ jobs:
         npm ls --all --workspace setup-linters || true
           
     - name: Update
+      if: false
       run: |
         # https://www.npmjs.com/package/@actions/tool-cache?activeTab=dependencies
         cat > setup-linters/package.json <<'EOF'
