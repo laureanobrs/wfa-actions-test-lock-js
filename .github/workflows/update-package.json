@@ -1,0 +1,103 @@
+name: Update package json
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-package-json:
+    name: Update package json
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+    - name: Check out revision
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24
+
+    - name: Debug info before package.json update
+      run: |
+        npm ls --workspace setup-linters || true
+        echo
+        echo
+        npm ls --all --workspace setup-linters || true
+          
+    - name: Update
+      run: |
+        # https://www.npmjs.com/package/@actions/tool-cache?activeTab=dependencies
+        cat > setup-linters/package.json <<'EOF'
+        {
+          "name": "setup-linters",
+          "version": "2.5.0",
+          "description": "Javascript GitHub Action to set up linters.",
+          "main": "index.js",
+          "scripts": {
+            "test": "echo \"Error: no test specified\" && exit 1"
+          },
+          "author": "",
+          "license": "Apache-2.0",
+          "dependencies": {
+            "@actions/core": "^3.0.1",
+            "@actions/io": "^3.0.2",
+            "@actions/tool-cache": "^4.0.0"
+          }
+        }
+        EOF
+
+    - name: Debug info before
+      run: |
+        npm ls --workspace setup-linters || true
+        echo
+        echo
+        npm ls --all --workspace setup-linters || true
+
+    - name: Regenerate package-lock.json
+      run: |
+        #npm install --install-strategy=shallow
+        npm install --install-strategy=hoisted
+
+    - name: Debug info after
+      run: |
+        npm ls --workspace setup-linters || true
+        echo
+        echo
+        npm ls --all --workspace setup-linters || true
+
+    - name: Show git status
+      run: git status
+
+    - name: Show regenerated node-modules package-lock.json
+      run: |
+        cat node_modules/.package-lock.json
+
+    - name: Show regenerated root package-lock.json
+      run: |
+        cat package-lock.json
+
+
+    - name: Commit and push changes to new branch
+      run: |
+        BRANCH="update-setup-linters-lock-${GITHUB_RUN_ID}"
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+
+        git checkout -b "$BRANCH"
+
+        git add .
+
+        if git diff --cached --quiet; then
+          echo "No changes to commit."
+          exit 0
+        fi
+
+        git commit -m "Update"
+        git push origin "$BRANCH"
+
+        echo "Pushed changes to branch: $BRANCH"
+    
