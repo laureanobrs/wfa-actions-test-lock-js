@@ -60,7 +60,7 @@ jobs:
     - name: Regenerate package-lock.json
       run: |
         #npm install --install-strategy=shallow
-        npm install --install-strategy=hoisted
+        npm install --lockfile-version 3
 
     - name: Debug info after
       run: |
